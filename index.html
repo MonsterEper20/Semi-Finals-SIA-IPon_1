@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IPON — Student Budget Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Noise overlay -->
+  <div class="noise"></div>
+
+  <!-- Sidebar Nav -->
+  <nav class="sidebar">
+    <div class="logo">
+      <span class="logo-word">IPON</span>
+      <span class="logo-sub">budget tracker</span>
+    </div>
+    <ul class="nav-links">
+      <li class="nav-item active" data-tab="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </li>
+      <li class="nav-item" data-tab="weeks">
+        <span class="nav-icon">◫</span> Weekly Logs
+      </li>
+      <li class="nav-item" data-tab="goals">
+        <span class="nav-icon">◎</span> Goals
+      </li>
+    </ul>
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">Connecting...</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- ── DASHBOARD TAB ── -->
+    <section class="tab-content active" id="tab-dashboard">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Your money at a glance.</p>
+      </div>
+
+      <div class="summary-grid" id="summaryGrid">
+        <div class="stat-card" id="stat-weeks">
+          <div class="stat-label">Total weeks</div>
+          <div class="stat-value" id="sv-weeks">—</div>
+        </div>
+        <div class="stat-card" id="stat-allowance">
+          <div class="stat-label">Total allowance</div>
+          <div class="stat-value" id="sv-allowance">—</div>
+        </div>
+        <div class="stat-card" id="stat-spent">
+          <div class="stat-label">Total spent</div>
+          <div class="stat-value" id="sv-spent">—</div>
+        </div>
+        <div class="stat-card accent" id="stat-saved">
+          <div class="stat-label">Total saved</div>
+          <div class="stat-value" id="sv-saved">—</div>
+        </div>
+        <div class="stat-card" id="stat-met">
+          <div class="stat-label">Targets met</div>
+          <div class="stat-value" id="sv-met">—</div>
+        </div>
+        <div class="stat-card red" id="stat-missed">
+          <div class="stat-label">Targets missed</div>
+          <div class="stat-value" id="sv-missed">—</div>
+        </div>
+      </div>
+
+      <!-- Goals progress on dashboard -->
+      <div class="section-divider">
+        <span>savings goals</span>
+      </div>
+      <div class="goals-dash" id="goalsDash">
+        <div class="loading-msg">Loading goals…</div>
+      </div>
+    </section>
+
+    <!-- ── WEEKLY LOGS TAB ── -->
+    <section class="tab-content" id="tab-weeks">
+      <div class="page-header row">
+        <div>
+          <h1 class="page-title">Weekly Logs</h1>
+          <p class="page-sub">Track each week's allowance and spending.</p>
+        </div>
+        <button class="btn-primary" id="openAddWeek">+ New Week</button>
+      </div>
+
+      <div class="weeks-list" id="weeksList">
+        <div class="loading-msg">Loading weeks…</div>
+      </div>
+    </section>
+
+    <!-- ── GOALS TAB ── -->
+    <section class="tab-content" id="tab-goals">
+      <div class="page-header row">
+        <div>
+          <h1 class="page-title">Goals</h1>
+          <p class="page-sub">Save toward something worth it.</p>
+        </div>
+        <button class="btn-primary" id="openAddGoal">+ New Goal</button>
+      </div>
+
+      <div class="goals-grid" id="goalsList">
+        <div class="loading-msg">Loading goals…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- Add / Edit Week Modal -->
+  <div class="modal-backdrop hidden" id="weekModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="weekModalTitle">New Week</h2>
+        <button class="modal-close" id="closeWeekModal">✕</button>
+      </div>
+      <form id="weekForm" class="modal-form" autocomplete="off">
+        <input type="hidden" id="weekId"/>
+        <label class="form-label">Week label
+          <input class="form-input" id="weekLabel" placeholder="e.g. Week 1" required/>
+        </label>
+        <label class="form-label">Allowance (₱)
+          <input class="form-input" id="weekAllowance" type="number" min="1" placeholder="1000" required/>
+        </label>
+        <label class="form-label">Spent (₱)
+          <input class="form-input" id="weekSpent" type="number" min="0" placeholder="500" required/>
+        </label>
+        <label class="form-label">Savings target (₱)
+          <input class="form-input" id="weekTarget" type="number" min="0" placeholder="300" required/>
+        </label>
+        <div class="form-error hidden" id="weekError"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" id="cancelWeek">Cancel</button>
+          <button type="submit" class="btn-primary" id="weekSubmitBtn">Save Week</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Goal Modal -->
+  <div class="modal-backdrop hidden" id="goalModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="goalModalTitle">New Goal</h2>
+        <button class="modal-close" id="closeGoalModal">✕</button>
+      </div>
+      <form id="goalForm" class="modal-form" autocomplete="off">
+        <input type="hidden" id="goalId"/>
+        <label class="form-label">Goal name
+          <input class="form-input" id="goalName" placeholder="e.g. Buy Phone" required/>
+        </label>
+        <label class="form-label">Target amount (₱)
+          <input class="form-input" id="goalTarget" type="number" min="1" placeholder="10000" required/>
+        </label>
+        <div class="form-error hidden" id="goalError"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" id="cancelGoal">Cancel</button>
+          <button type="submit" class="btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contribute Modal -->
+  <div class="modal-backdrop hidden" id="contributeModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Contribute</h2>
+        <button class="modal-close" id="closeContributeModal">✕</button>
+      </div>
+      <p class="contribute-goal-name" id="contributeGoalName"></p>
+      <form id="contributeForm" class="modal-form" autocomplete="off">
+        <input type="hidden" id="contributeGoalId"/>
+        <label class="form-label">Amount (₱)
+          <input class="form-input" id="contributeAmount" type="number" min="1" placeholder="500" required/>
+        </label>
+        <div class="form-error hidden" id="contributeError"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" id="cancelContribute">Cancel</button>
+          <button type="submit" class="btn-primary">Add Money</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-backdrop hidden" id="deleteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Delete?</h2>
+        <button class="modal-close" id="closeDeleteModal">✕</button>
+      </div>
+      <p class="delete-msg" id="deleteMsg"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="cancelDelete">Cancel</button>
+        <button class="btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
