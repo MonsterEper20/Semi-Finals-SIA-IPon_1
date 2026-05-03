@@ -1,4 +1,4 @@
-   const BASE = 'https://ipon-allowance.onrender.com';
+   const BASE = 'https://semi-finals-sia-ipon-1-2.onrender.com';
 
    /* ── Helpers ── */
    const $ = id => document.getElementById(id);
@@ -35,9 +35,7 @@
      }
    }
    
-   /* ══════════════════════════════════
-      NAV / TABS
-   ══════════════════════════════════ */
+
    document.querySelectorAll('.nav-item').forEach(item => {
      item.addEventListener('click', () => {
        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -51,9 +49,7 @@
      });
    });
    
-   /* ══════════════════════════════════
-      DASHBOARD
-   ══════════════════════════════════ */
+
    async function loadDashboard() {
      try {
        const [summary, goals] = await Promise.all([
@@ -101,10 +97,7 @@
        </div>`;
      }).join('');
    }
-   
-   /* ══════════════════════════════════
-      WEEKLY LOGS
-   ══════════════════════════════════ */
+
    async function loadWeeks() {
      const el = $('weeksList');
      el.innerHTML = '<div class="loading-msg">Loading weeks…</div>';
@@ -219,9 +212,6 @@
      } catch (e) { showToast(e.message, 'error'); }
    });
    
-   /* ══════════════════════════════════
-      GOALS
-   ══════════════════════════════════ */
    async function loadGoals() {
      const el = $('goalsList');
      el.innerHTML = '<div class="loading-msg">Loading goals…</div>';
